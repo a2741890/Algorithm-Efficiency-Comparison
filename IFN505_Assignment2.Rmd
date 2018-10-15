@@ -1,0 +1,180 @@
+---
+title: "IFN505_Assignment2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Set the seed and generate random testing data
+```{r}
+set.seed(777)
+testVector = c()
+##The range of this test is 1~10000
+for(i in c(0,1,2,10,100,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,10001)){
+##Boundary case
+if(i > 0)
+  {
+testVector = c(testVector,sample(1:10000000,i,replace=T))
+}
+}
+ 
+##Input different size (range from 0 to 10001) of random testing data
+startPoint = 0
+endPoint = 0
+basicOperationAndRunningTime = matrix(nrow = 4, ncol = 16)
+index = 1
+for(n in c(0,1,2,10,100,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,10001)){
+  cat("The input size is :",n,"\n")
+##Boundary case
+  if(n < 0){
+    cat("This program aims to calculate the distance of each pair, the input size cannot be less than zero","\n")
+  }
+  else if(n == 0){
+    dmax1 = 0
+    runTime1 = 0
+    basicOperation1 = 0
+    dmax2 = 0
+    runTime2 = 0
+    basicOperation2 = 0
+    cat("The max distance calculated by Algorithm1 is:",dmax1,"\n")
+    cat("The running time of the Algorithm1 is:",runTime1 = 0,"\n")
+    cat("The number of the basic operation executed in the Algorithm1 is:",basicOperation1,"\n\n")
+    
+    cat("The max distance calculated by Algorithm2 is:",dmax2,"\n")
+    cat("The running time of the Algorithm2 is:",runTime2,"\n")
+    cat("The number of the basic operation executed in the Algorithm2 is:",basicOperation2,"\n")
+    basicOperationAndRunningTime[1,index] = basicOperation1
+    basicOperationAndRunningTime[2,index] = runTime1
+    basicOperationAndRunningTime[3,index] = basicOperation2
+    basicOperationAndRunningTime[4,index] = runTime2
+    index = index + 1
+  }
+  else{
+  startPoint = endPoint + 1
+  endPoint = endPoint + n
+  print(startPoint)
+  print(endPoint)
+  currentTesting = testVector[startPoint:endPoint]
+  
+##Algorithm 1 MaxDistance(A[1..n])
+  ##Repeatedly testing to obatain the average of time (10 times totally)
+  timeSum1 = 0
+  for(r in c(1:10)){
+  basicOperation1 = 0
+  ##Time Start
+  ptm1 <- proc.time()
+  
+  ##The actual algorithm top
+  dmax1 = 0
+  for(k in c(1:n)){
+    for(j in c(1:n)){
+        basicOperation1 = basicOperation1 + 1
+      if(k != j && abs(currentTesting[k] - currentTesting[j]) > dmax1){
+        dmax1 = abs(currentTesting[k] - currentTesting[j])
+      }
+    }
+  }
+  ##The actual algorithm bottom
+  ##Time stop
+  timeDifference1 = proc.time() - ptm1
+  runTime1 = as.double(timeDifference1[1]) + as.double(timeDifference1[2])
+  timeSum1 = timeSum1 + runTime1
+  }
+  cat("The max distance calculated by Algorithm1 is:",dmax1,"\n")
+  ##Calculate the average time
+  runTime1 = timeSum1/10
+  cat("The running time of the Algorithm1 is:",runTime1,"\n")
+  cat("The number of the basic operation executed in the Algorithm1 is:",basicOperation1,"\n\n")
+##Algorithm 2 MaxDistance2(A[1..n])
+  ##Repeatedly testing to obatain the average of time (10 times totally)
+  timeSum2 = 0
+  for(r in c(1:10)){
+    basicOperation2 = 0
+    ##Condition: when n = 1
+    if(n == 1){
+      ##Time start
+      ptm2 <- proc.time()
+      for(l in c(1:1)){
+    for(h in c(l:l)){
+      temp = abs(currentTesting[l] - currentTesting[h])
+      basicOperation2 = basicOperation2 + 1
+      if(temp > dmax2){
+        dmax2 = temp
+      }
+    }
+      }
+      timeDifference2 = proc.time() - ptm2
+      runTime2 = as.double(timeDifference2[1]) + as.double(timeDifference2[2])
+      timeSum2 = runTime2 + timeSum2
+    }
+  else{
+  ##Time start
+  ptm2 <- proc.time()
+  ##The actual algorithm top
+  dmax2 = 0
+  for(l in c(1:(n-1))){
+    for(h in c((l+1):n)){
+      temp = abs(currentTesting[l] - currentTesting[h])
+      basicOperation2 = basicOperation2 + 1
+      if(temp > dmax2){
+        dmax2 = temp
+      }
+    }
+  }
+  
+  ##The actual algorithm bottom
+  ##Time stop
+  timeDifference2 = proc.time() - ptm2
+  runTime2 = as.double(timeDifference2[1]) + as.double(timeDifference2[2])
+  timeSum2 = runTime2 + timeSum2
+  }
+  }
+  cat("The max distance calculated by Algorithm2 is:",dmax2,"\n")
+  ##Calculate the average time
+  runTime2 = timeSum2/10
+  cat("The running time of the Algorithm2 is:",runTime2,"\n")
+  cat("The number of the basic operation executed in the Algorithm2 is:",basicOperation2,"\n")
+##To collect the running time and basic operation number for both algorithms according to different input sizes
+ 
+  basicOperationAndRunningTime[1,index] = basicOperation1
+  basicOperationAndRunningTime[2,index] = runTime1
+  basicOperationAndRunningTime[3,index] = basicOperation2
+  basicOperationAndRunningTime[4,index] = runTime2
+  index = index + 1
+  }
+}
+colnames(basicOperationAndRunningTime) = c("Input size:0","Input size:1","Input size:2","Input size:10","Input size:100","Input size:1000","Input size:2000","Input size:3000","Input size:4000","Input size:5000","Input size:6000","Input size:7000","Input size:8000","Input size:9000","Input size:10000","Input size:10001")
+rownames(basicOperationAndRunningTime) = c("BasicOperation 1","RunTime1","BasicOperation2","RunTime2")
+basicOperationAndRunningTime
+
+```
+Plot for number of basic operation versus input size & running time versus input size
+```{r}
+library(ggplot2)
+B1vsIS = plot(x=c(0,1,2,10,100,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,10001),y=basicOperationAndRunningTime[1,1:16],main = "Algorithm 1: Number of basic operation versus different input size",xlab = "Input size",ylab = "Basic operation",pch = 16, type="o")
+B2vsIS = plot(x=c(0,1,2,10,100,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,10001),y=basicOperationAndRunningTime[3,1:16],main = "Algorithm 2: Number of basic operation versus different input size",xlab = "Input size",ylab = "Basic operation",pch = 16, type="o")
+R1vsIS = plot(x=c(0,1,2,10,100,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,10001),y=basicOperationAndRunningTime[2,1:16],main = "Algorithm 1: Running time versus different input size",xlab = "Input size",ylab = "Running time(s)",pch = 16, type="o")
+R2vsIS = plot(x=c(0,1,2,10,100,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,10001),y=basicOperationAndRunningTime[4,1:16],main = "Algorithm 2: Running time versus different input size",xlab = "Input size",ylab = "Running time(s)",pch = 16, type="o")
+```
